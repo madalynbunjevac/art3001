@@ -1,4 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&display=swap');
 
-
-
+.pgHead {
+    color: #F0EFEB; 
+    text-shadow: #DDBEA9 3px 3px; 
+    font-size:xx-large; 
+    font-family: 'Amatic SC', cursive;
+}
 
