@@ -1,0 +1,111 @@
+body {
+    background-image: linear-gradient(to right, #969189, #C2CBC1, #CB997E, #E1BD8F, #A5A58D);
+    overflow-x: hidden;
+}
+
+
+/* The Container */
+.box-grid {
+    display: -ms-grid;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-gap: 1.5rem;
+    justify-items: center;
+    padding: 0;
+  }
+  
+  /* Styles for the caption overlays */
+  /* Standard Box: Top Center */
+  .box-flex {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: flex-start;
+    justify-content: center;
+    padding: .5rem;
+    text-align: center;
+    font-size: 1.2rem;
+    background-color: #333333;
+    color: #d9d9d9;
+  }
+  
+  /* Box: Center Center */
+  .box-flex-center {
+    align-items: center;
+  }
+  
+  /* Box: Bottom Center */
+  .box-flex-bottom {
+    align-items: flex-end;
+  }
+  
+  /* Box: Top Right */
+  .box-flex-top-right {
+    justify-content: flex-end;
+  }
+  
+  /* Box: Center Left */
+  .box-flex-center-left {
+    align-items: center;
+    justify-content: flex-start;
+  }
+  
+  /* Box: Bottom Right */
+  .box-flex-bottom-right {
+    align-items: flex-end;
+    justify-content: flex-end;
+  }
+  
+  .box-img {
+    transition: -webkit-transform .5s ease-in-out;
+    transition: transform .5s ease-in-out;
+  }
+  
+  .box-img:hover {
+    -webkit-transform: scale(1.07);
+    transform: scale(1.07);
+  }
+  
+  .box-caption {
+    position: absolute;
+    max-width: 200px;
+    margin: 0;
+    padding: .5rem;
+    word-break: break-word;
+    font-size: 1.25rem;
+    background-color: rgba(0,0,0,.3);
+    color: #f2f2f2;
+  }
+  
+  .box-caption:hover {
+    background-color: rgba(0,0,0,.5);
+    color: #e6e6e6;
+    transition: all ease .5s;
+  }
+  
+
+/* .gallery {
+    margin: 5px;
+    border: 3px solid #ccc;
+    float: left;
+    width: auto;
+    text-align: center;
+  
+  }
+  
+ .gallery:hover {
+    border: 3px solid #777;
+  }
+  
+.gallery img {
+    width: auto;
+    height: 350px;
+    
+  }
+  
+.desc {
+    padding: 15px;
+    text-align: center;
+  }
+ */
+
+
