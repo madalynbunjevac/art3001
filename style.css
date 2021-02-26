@@ -160,11 +160,11 @@ padding: 30px;}
   
   .front .inner p{
 	font-size: 2rem;
-	margin-bottom: 2rem;
+	
 	position: relative;
   }
   
-  .front .inner p:after{
+  .front .inner p:{
 	content: '';
 	width: 4rem;
 	height: 2px;
