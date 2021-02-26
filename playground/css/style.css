@@ -1,0 +1,9 @@
+#canvas-container{
+    width: 95vw;
+    height: 95vh;
+}
+
+#canvas-container > canvas{
+    width: 50%;
+    height: 50%;
+}
