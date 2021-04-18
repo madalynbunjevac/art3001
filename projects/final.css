@@ -192,7 +192,8 @@ input[value="on"]:checked ~
     position: fixed;
     width: 94%;
     text-align: center;
-    bottom: 30%;
+    top: 25%;
+    bottom: 0%;
     padding: 0 3%;
     z-index:1;
 }
@@ -326,3 +327,4 @@ input[value="on"]:checked ~
         transform: translate(-1px,0px) scale(1.01,1.06) skew(-0.9deg, 0deg);
     }
 }
+
