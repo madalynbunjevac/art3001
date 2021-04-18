@@ -1,0 +1,105 @@
+
+body {background-color: black;}
+.container {
+    width: 600px;
+    height: 600px;
+    margin: 0 auto;
+    margin-top: 15%;
+  }
+  
+  .circle {
+    /*border: 1px solid black;*/
+    width: 90%;
+    height: 90%;
+    border-radius: 250px;
+    margin: 0 auto;
+    -webkit-animation-name: spin;
+      -webkit-animation-iteration-count: infinite;
+      -webkit-animation-timing-function: linear;
+      -webkit-animation-duration: 5s;
+  }
+  
+  .circle1 {
+    background-color: rgba(125, 141, 192, 0.3);
+  }
+  
+  .circle2 {
+    background-color: rgba(128, 211, 135, 0.3);
+  }
+  
+  .circle3 {
+    background-color: rgba(216, 124, 124, 0.3);
+  }
+  
+  .circle4 {
+    background-color: rgba(218, 147, 41, 0.3);
+  }
+  
+  .circle5 {
+    background-color: rgba(134, 140, 231, 0.3);
+  }
+  
+  .circle6 {
+    background-color: rgba(41, 145, 122, 0.3);
+  }
+  
+  .circle7 {
+    background-color: hsla(24,0%,70%,0.3);
+  }
+  
+  .circle8 {
+    background-color: hsla(24,0%,65%,0.3);
+  }
+  
+  .circle9 {
+    background-color: hsla(24,0%,60%,0.3);
+  }
+  
+  .circle10 {
+    background-color: rgba(95, 50, 180, 0.3);
+  }
+  
+  .circle11 {
+    background-color: rgba(156, 36, 36, 0.3);
+  }
+  
+  .circle12 {
+    background-color: rgba(28, 224, 208, 0.3);
+  }
+  
+  .circle13 {
+    background-color: rgba(65, 177, 89, 0.3);
+  }
+  
+  .circle14 {
+    background-color: rgba(198, 209, 103, 0.3);
+  }
+  
+  .circle15 {
+    background-color: rgba(35, 102, 71, 0.3);
+  }
+  
+  .circle16 {
+    background-color: rgba(42, 44, 175, 0.3);
+  }
+  
+  .circle17 {
+    background-color: rgba(103, 200, 212, 0.3);
+  }
+  
+  .circle18 {
+    background-color: rgba(63, 194, 118, 0.3);
+  }
+  
+  @-webkit-keyframes spin {
+    from {
+        -webkit-transform: rotate(0deg);
+      }
+    to {
+        -webkit-transform: rotate(360deg);
+      }
+  }
+  
+
+  
+  
