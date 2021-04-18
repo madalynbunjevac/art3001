@@ -1,25 +1,25 @@
 body {
-    background: rgba(163, 163, 128, .5);
+    background: rgba(3, 29, 68, .5);
 animation: colorchange linear 3s infinite;
 -webkit-animation: colorchange linear 10s infinite; 
 }
 
 @keyframes colorchange
 {
-0%  {background: rgba(163, 163, 128, .5);}
-20%  {background: rgba(214, 206, 147, .5);}
-40%  {background: rgba(239, 235, 206, .5);}
-60%  {background: rgba(216, 164, 143, .5);}
-80% {background: rgba(187, 133, 136, .5);}
+0%  {background: rgba(3, 29, 68, .5);}
+20%  {background: rgba(218, 183, 133, .5);}
+40%  {background: rgba(213, 137, 111, .5);}
+60%  {background: rgba(112, 162, 136, .5);}
+80% {background: rgba(4, 57, 94, .5);}
 }
 
 @-webkit-keyframes colorchange 
 {
-0%  {background: rgba(163, 163, 128, .5);}
-20%  {background: rgba(214, 206, 147, .5);}
-40%  {background: rgba(239, 235, 206, .5);}
-60%  {background: rgba(216, 164, 143, .5);}
-80% {background: rgba(187, 133, 136, .5);}
+0%  {background: rgba(3, 29, 68, .5);}
+20%  {background: rgba(218, 183, 133, .5);}
+40%  {background: rgba(213, 137, 111, .5);}
+60%  {background: rgba(112, 162, 136, .5);}
+80% {background: rgba(4, 57, 94, .5);}
 }
 
 html, body {
