@@ -1,25 +1,25 @@
 body {
-    background: rgba(255, 255, 0, .5);
+    background: rgba(163, 163, 128, .5);
 animation: colorchange linear 3s infinite;
 -webkit-animation: colorchange linear 10s infinite; 
 }
 
 @keyframes colorchange
 {
-0%  {background: rgba(255, 255, 0, .5);}
-20%  {background: rgba(0, 128, 0, .5);}
-40%  {background: rgba(0, 0, 255, .5);}
-60%  {background: rgba(128, 0, 128, .5);}
-80% {background: rgba(255, 0, 0, .5);}
+0%  {background: rgba(163, 163, 128, .5);}
+20%  {background: rgba(214, 206, 147, .5);}
+40%  {background: rgba(239, 235, 206, .5);}
+60%  {background: rgba(216, 164, 143, .5);}
+80% {background: rgba(187, 133, 136, .5);}
 }
 
 @-webkit-keyframes colorchange 
 {
-0%  {background: rgba(255, 255, 0, .5);}
-20%  {background: rgba(0, 128, 0, .5);}
-40%  {background: rgba(0, 0, 255, .5);}
-60%  {background: rgba(128, 0, 128, .5);}
-80% {background: rgba(255, 0, 0, .5);}
+0%  {background: rgba(163, 163, 128, .5);}
+20%  {background: rgba(214, 206, 147, .5);}
+40%  {background: rgba(239, 235, 206, .5);}
+60%  {background: rgba(216, 164, 143, .5);}
+80% {background: rgba(187, 133, 136, .5);}
 }
 
 html, body {
@@ -142,11 +142,11 @@ label {
 input[value="off"]:checked ~
 label {
     background: rgba(255,255,255,0.03);
-    -webkit-box-shadow: inset 0px 1px 5px rgba(255,255,255,0.1), inset 0px 2px 20px rgba(255,255,255,0.07), -80px -15px 15px -5px rgba(0,0,0,0.1);
-       -moz-box-shadow: inset 0px 1px 5px rgba(255,255,255,0.1), inset 0px 2px 20px rgba(255,255,255,0.07), -80px -15px 15px -5px rgba(0,0,0,0.1);
-        -ms-box-shadow: inset 0px 1px 5px rgba(255,255,255,0.1), inset 0px 2px 20px rgba(255,255,255,0.07), -80px -15px 15px -5px rgba(0,0,0,0.1);
-         -o-box-shadow: inset 0px 1px 5px rgba(255,255,255,0.1), inset 0px 2px 20px rgba(255,255,255,0.07), -80px -15px 15px -5px rgba(0,0,0,0.1);
-            box-shadow: inset 0px 1px 5px rgba(255,255,255,0.1), inset 0px 2px 20px rgba(255,255,255,0.07), -80px -15px 15px -5px rgba(0,0,0,0.1);
+    -webkit-box-shadow: inset 0px 1px 5px rgba(255, 255, 255, 0.500), inset 0px 2px 20px rgba(22, 21, 21, 0.150), -80px -15px 15px -5px rgba(0,0,0,0.1);
+       -moz-box-shadow: inset 0px 1px 5px rgba(255,255,255,0.500), inset 0px 2px 20px rgba(22, 21, 21, 0.150), -80px -15px 15px -5px rgba(0,0,0,0.1);
+        -ms-box-shadow: inset 0px 1px 5px rgba(255,255,255,0.500), inset 0px 2px 20px rgba(22, 21, 21, 0.150), -80px -15px 15px -5px rgba(0,0,0,0.1);
+         -o-box-shadow: inset 0px 1px 5px rgba(255,255,255,0.500), inset 0px 2px 20px rgba(22, 21, 21, 0.150), -80px -15px 15px -5px rgba(0,0,0,0.1);
+            box-shadow: inset 0px 1px 5px rgba(255,255,255,0.500), inset 0px 2px 20px rgba(22, 21, 21, 0.150), -80px -15px 15px -5px rgba(0,0,0,0.1);
 }
 input[value="on"]:checked ~
 label {
@@ -172,7 +172,7 @@ label:after {
         -ms-border-radius: 100%;
          -o-border-radius: 100%;
             border-radius: 100%;
-    border: 2px solid rgba(255,255,255,0.03);
+    border: 3px solid rgba(255, 255, 255, 0.041);
 }
 #sorpresa {
     position: fixed;
@@ -203,11 +203,11 @@ input[value="on"]:checked ~
     bottom: 29%;
     padding: 0 3%;
     color:rgba(0,0,0,0);
-    -webkit-text-shadow: 0px 0px 4px rgba(0,0,0,0.3);
-       -moz-text-shadow: 0px 0px 4px rgba(0,0,0,0.3);
-        -ms-text-shadow: 0px 0px 4px rgba(0,0,0,0.3);
-         -o-text-shadow: 0px 0px 4px rgba(0,0,0,0.3);
-            text-shadow: 0px 0px 4px rgba(0,0,0,0.3);
+    -webkit-text-shadow: 0px 0px 4px rgba(0,0,0,0.7);
+       -moz-text-shadow: 0px 0px 4px rgba(0,0,0,0.7);
+        -ms-text-shadow: 0px 0px 4px rgba(0,0,0,0.7);
+         -o-text-shadow: 0px 0px 4px rgba(0,0,0,0.7);
+            text-shadow: 0px 0px 4px rgba(0,0,0,0.7);
     -webkit-transform-origin: 50% 0px;
        -moz-transform-origin: 50% 0px;
         -ms-transform-origin: 50% 0px;
