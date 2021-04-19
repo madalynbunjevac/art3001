@@ -14,7 +14,7 @@ body {
 }
 canvas {
   flex-shrink: 0;
-  background-color: #222;
+  background-color: rgb(168, 145, 145);
   image-rendering: -moz-crisp-edges;
   image-rendering: -webkit-crisp-edges;
   image-rendering: pixelated;
