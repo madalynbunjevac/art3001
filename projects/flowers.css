@@ -1,0 +1,179 @@
+@import url('https://fonts.googleapis.com/css2?family=Merriweather&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  font-family: 'Merriweather', serif;
+}
+
+.container {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  background: #8f9bbc;
+}
+
+.message-box {
+  display: none;
+  z-index: 2;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 250px;
+  height: 100px;
+  padding: 20px;
+  background: #a31414;
+  box-sizing: border-box;
+  border-radius: 8px;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3)
+}
+
+.message-title, .message {
+  color: #fff;
+  font-size: 16px;
+  text-align: center;
+}
+
+.message {
+  margin-top: 10px;
+  font-size: 12px;
+}
+
+.close-btn {
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  font-size: 36px;
+  font-weight: bold;
+  color: #bd2222;
+  width: 40px;
+  height: 40px;
+  background: #de4040;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.close {
+  position: absolute;
+  top: -4px;
+  left: 9px;
+  user-select: none;
+}
+
+.steal-this {
+  position: absolute;
+  left: 50%;
+  bottom: calc(1/4 * 100vh);
+  transform: translateX(-50%);
+  width: 200px;
+  height: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  color: #a31414;
+}
+
+h1 {
+  font-size: 24px;
+  user-select: none;
+}
+
+
+.v-laser {
+  display: none;
+  position: absolute;
+  width: 3px;
+  height: 100vh;
+  box-shadow:
+    inset 1px 0 10px #fff,
+    inset 3px 0 0 #f0f,
+    0 0 50px #fff,         
+    0 0 20px #f0f; 
+} 
+
+.h-laser {
+  display: none;
+  position: absolute;
+  width: 100vw;
+  height: 3px;
+  box-shadow:
+    inset 0 1px 10px #fff,
+    inset 0 3px 0 #f0f,
+    0 0 50px #fff,         
+    0 0 20px #f0f; 
+}
+
+.vl1 { left: calc(1/10 * 100vw); }
+.vl2 { left: calc(1/5 * 100vw); }
+.vl3 { left: calc(1/3 * 100vw); }
+.vl4 { right: calc(1/3 * 100vw); } 
+.vl5 { right: calc(1/5 * 100vw); } 
+.vl6 { right: calc(1/10 * 100vw); } 
+.hl1 { top: calc(1/10 * 100vh); }
+.hl2 { top: calc(1/5 * 100vh); }
+.hl3 { top: calc(1/4 * 100vh); }
+.hl4 { bottom: calc(1/4 * 100vh); }
+.hl5 { bottom: calc(1/5 * 100vh); }
+.hl6 { bottom: calc(1/10 * 100vh); }
+
+.ruby-wrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 150px;
+  height: 150px;
+  box-sizing: border-box;
+  cursor: grab;
+}
+
+.ruby {
+  position: absolute;
+}
+
+.r-upper-left {
+  width: 0;
+  height: 0;
+  border-left: 37px solid transparent;
+  border-right: 37px solid transparent;
+  border-bottom: 40px solid #bd2222;
+}
+
+.r-upper-middle {
+  left: 37px;
+  width: 0;
+  height: 0;
+  border-left: 37px solid transparent;
+  border-right: 37px solid transparent;
+  border-top: 40px solid #de4040;
+}
+
+.r-upper-right {
+  left: 74px;
+  width: 0;
+  height: 0;
+  border-left: 37px solid transparent;
+  border-right: 37px solid transparent;
+  border-bottom: 40px solid #fa6161;
+}
+
+.r-bottom {
+  top: 40px;
+  width: 0;
+  height: 0;
+  border-left: 74px solid transparent;
+  border-right: 74px solid transparent;
+  border-top: 74px solid #a31414;
+}
+
+.r-shadow {
+  top: 130px;
+  left: 10px;
+  width: 130px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.1);
+}
+
