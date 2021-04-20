@@ -1,0 +1,94 @@
+.planet_wraper {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 7rem;
+    height: 7rem;
+    margin: auto;
+    border-radius: 50%;
+  }
+  .planet_shadow {
+    box-shadow: inset 0 -5px 10px rgba(22, 48, 64, 0.5), 0 0 1.5rem rgba(170, 194, 194, 0.3);
+    background-image: linear-gradient(to top left, #24b88b 20%, #21776f);
+  }
+  .planet {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    animation: rotate 15s linear infinite;
+    overflow: hidden;
+  }
+  .planet_wraper::before, .planet_wraper::after {
+    content: '';
+    display: block;
+    position: absolute;
+    border-radius: 50%;
+    box-shadow: 0 0.1rem 0.1rem rgba(170, 194, 194, 0.1), inset 0 -0.1rem 0.1rem rgba(170, 194, 194, 0.1);
+    animation: rotate 5s linear infinite;
+  }
+  .planet_wraper::before {
+    top: -1.75rem;
+    left: -1.75rem;
+    width: 11rem;
+    height: 11rem;
+    animation-delay: 1s;
+  }
+  .planet_wraper::after {
+    top: -2.5rem;
+    left: -2.5rem;
+    width: 15rem;
+    height: 15rem;
+  }
+  .planet > * {
+    position: relative;
+    border-radius: 50%;
+    background-color: #209b85;
+    box-shadow: inset 1px 1px 5px #163040, 0 0 7px #63eed2 ;
+    opacity: 0.3;
+  }
+  .crater:nth-of-type(1) {
+    top: 2rem;
+    left: 1.5rem;
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+  .crater:nth-of-type(2) {
+    top: -0.75rem;
+    left: 5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  .crater:nth-of-type(3) {
+    top: 0.5rem;
+    left: 2rem;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  .crater:nth-of-type(4) {
+    top: -1.5rem;
+    left: 3.5rem;
+    width: 0.5rem;
+    height: 0.5rem;
+  }
+  .crater:nth-of-type(5)  {
+    top: 1.25rem;
+    left: 3.5rem;
+    width: 2rem;
+    height: 1.5rem;
+  }
+  @keyframes bg {
+    to { background-position: center 20rem; }
+  }
+  @keyframes rotate {
+    to { transform: rotate(360deg)}
+  }
+   body {
+     background-color: #163040;
+     background-image:  url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle opacity="0.5" fill="%23FFFFFF" cx="28.75" cy="22.338" r="0.713"/><circle opacity="0.2" fill="%23FFFFFF" cx="26.75" cy="79.443" r="0.307"/><circle opacity="0.5" fill="%23FFFFFF" cx="50" cy="41.884" r="0.308"/><circle fill="%23FFFFFF" cx="12.883" cy="42.25" r="0.367"/><circle opacity="0.4" fill="%23FFFFFF" cx="80" cy="72.818" r="0.307"/><circle opacity="0.5" fill="%23FFFFFF" cx="55.625" cy="12.375" r="0.308"/><circle opacity="0.2" fill="%23FFFFFF" cx="73.307" cy="89.375" r="0.308"/><circle opacity="0.5" fill="%23FFFFFF" cx="73" cy="53.884" r="0.308"/><circle opacity="0.5" fill="%23FFFFFF" cx="38.875" cy="89.432" r="0.385"/></svg>');
+    background-size: 20rem 20rem;
+    background-position: center 0;
+    animation: bg 20s linear infinite;
+  }
