@@ -192,7 +192,7 @@ input[value="on"]:checked ~
     position: fixed;
     width: 94%;
     text-align: center;
-    top: 25%;
+    top: 33%;
     bottom: 0%;
     padding: 0 3%;
     z-index:1;
