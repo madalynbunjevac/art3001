@@ -1,741 +1,156 @@
-// Scene, Camera, Renderer
-let renderer = new THREE.WebGLRenderer();
-let scene = new THREE.Scene();
-let aspect = window.innerWidth / window.innerHeight;
-let camera = new THREE.PerspectiveCamera(45, aspect, 0.1, 1500);
-let cameraRotation = 0;
-let cameraRotationSpeed = 0.001;
-let cameraAutoRotation = true;
-let orbitControls = new THREE.OrbitControls(camera);
+// One of my first <canvas> experiments, woop! :D 
 
-// Lights
-let spotLight = new THREE.SpotLight(0xffffff, 1, 0, 10, 2);
+var SCREEN_WIDTH = window.innerWidth;
+var SCREEN_HEIGHT = window.innerHeight;
 
-// Texture Loader
-let textureLoader = new THREE.TextureLoader();
+var RADIUS = 70;
 
-// Planet Proto
-let planetProto = {
-  sphere: function(size) {
-    let sphere = new THREE.SphereGeometry(size, 32, 32);
-    
-    return sphere;
-  },
-  material: function(options) {
-    let material = new THREE.MeshPhongMaterial();
-    if (options) {
-      for (var property in options) {
-        material[property] = options[property];
-      } 
-    }
-    
-    return material;
-  },
-  glowMaterial: function(intensity, fade, color) {
-    // Custom glow shader from https://github.com/stemkoski/stemkoski.github.com/tree/master/Three.js
-    let glowMaterial = new THREE.ShaderMaterial({
-      uniforms: { 
-        'c': {
-          type: 'f',
-          value: intensity
-        },
-        'p': { 
-          type: 'f',
-          value: fade
-        },
-        glowColor: { 
-          type: 'c',
-          value: new THREE.Color(color)
-        },
-        viewVector: {
-          type: 'v3',
-          value: camera.position
-        }
-      },
-      vertexShader: `
-        uniform vec3 viewVector;
-        uniform float c;
-        uniform float p;
-        varying float intensity;
-        void main() {
-          vec3 vNormal = normalize( normalMatrix * normal );
-          vec3 vNormel = normalize( normalMatrix * viewVector );
-          intensity = pow( c - dot(vNormal, vNormel), p );
-          gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-        }`
-      ,
-      fragmentShader: `
-        uniform vec3 glowColor;
-        varying float intensity;
-        void main() 
-        {
-          vec3 glow = glowColor * intensity;
-          gl_FragColor = vec4( glow, 1.0 );
-        }`
-      ,
-      side: THREE.BackSide,
-      blending: THREE.AdditiveBlending,
-      transparent: true
-    });
-    
-    return glowMaterial;
-  },
-  texture: function(material, property, uri) {
-    let textureLoader = new THREE.TextureLoader();
-    textureLoader.crossOrigin = true;
-    textureLoader.load(
-      uri,
-      function(texture) {
-        material[property] = texture;
-        material.needsUpdate = true;
-      }
-    );
-  }
-};
+var RADIUS_SCALE = 1;
+var RADIUS_SCALE_MIN = 1;
+var RADIUS_SCALE_MAX = 1.5;
 
-let createPlanet = function(options) {
-  // Create the planet's Surface
-  let surfaceGeometry = planetProto.sphere(options.surface.size);
-  let surfaceMaterial = planetProto.material(options.surface.material);
-  let surface = new THREE.Mesh(surfaceGeometry, surfaceMaterial);
+var QUANTITY = 25;
+
+var canvas;
+var context;
+var particles;
+
+var mouseX = SCREEN_WIDTH * 0.5;
+var mouseY = SCREEN_HEIGHT * 0.5;
+var mouseIsDown = false;
+
+function init() {
+
+  canvas = document.getElementById( 'world' );
   
-  // Create the planet's Atmosphere
-  let atmosphereGeometry = planetProto.sphere(options.surface.size + options.atmosphere.size);
-  let atmosphereMaterialDefaults = {
-    side: THREE.DoubleSide,
-    transparent: true
-  }
-  let atmosphereMaterialOptions = Object.assign(atmosphereMaterialDefaults, options.atmosphere.material);
-  let atmosphereMaterial = planetProto.material(atmosphereMaterialOptions);
-  let atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
-  
-  // Create the planet's Atmospheric glow
-  let atmosphericGlowGeometry = planetProto.sphere(options.surface.size + options.atmosphere.size + options.atmosphere.glow.size);
-  let atmosphericGlowMaterial = planetProto.glowMaterial(options.atmosphere.glow.intensity, options.atmosphere.glow.fade, options.atmosphere.glow.color);
-  let atmosphericGlow = new THREE.Mesh(atmosphericGlowGeometry, atmosphericGlowMaterial);
-  
-  // Nest the planet's Surface and Atmosphere into a planet object
-  let planet = new THREE.Object3D();
-  surface.name = 'surface';
-  atmosphere.name = 'atmosphere';
-  atmosphericGlow.name = 'atmosphericGlow';
-  planet.add(surface);
-  planet.add(atmosphere);
-  planet.add(atmosphericGlow);
-
-  // Load the Surface's textures
-  for (let textureProperty in options.surface.textures) {
-    planetProto.texture(
-      surfaceMaterial,
-      textureProperty,
-      options.surface.textures[textureProperty]
-    ); 
-  }
-  
-  // Load the Atmosphere's texture
-  for (let textureProperty in options.atmosphere.textures) {
-    planetProto.texture(
-      atmosphereMaterial,
-      textureProperty,
-      options.atmosphere.textures[textureProperty]
-    );
-  }
-  
-  return planet;
-};
-
-let earth = createPlanet({
-  surface: {
-    size: 0.5,
-    material: {
-      bumpScale: 0.05,
-      specular: new THREE.Color('grey'),
-      shininess: 10
-    },
-    textures: {
-      map: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/141228/earthmap1k.jpg',
-      bumpMap: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/141228/earthbump1k.jpg',
-      specularMap: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/141228/earthspec1k.jpg'
-    }
-  },
-  atmosphere: {
-    size: 0.003,
-    material: {
-      opacity: 0.8
-    },
-    textures: {
-      map: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/141228/earthcloudmap.jpg',
-      alphaMap: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/141228/earthcloudmaptrans.jpg'
-    },
-    glow: {
-      size: 0.02,
-      intensity: 0.7,
-      fade: 7,
-      color: 0x93cfef
-    }
-  },
-});
-
-// Marker Proto
-let markerProto = {
-  latLongToVector3: function latLongToVector3(latitude, longitude, radius, height) {
-    var phi = (latitude)*Math.PI/180;
-    var theta = (longitude-180)*Math.PI/180;
-
-    var x = -(radius+height) * Math.cos(phi) * Math.cos(theta);
-    var y = (radius+height) * Math.sin(phi);
-    var z = (radius+height) * Math.cos(phi) * Math.sin(theta);
-
-    return new THREE.Vector3(x,y,z);
-  },
-  marker: function marker(size, color, vector3Position) {
-    let markerGeometry = new THREE.SphereGeometry(size);
-    let markerMaterial = new THREE.MeshLambertMaterial({
-      color: color
-    });
-    let markerMesh = new THREE.Mesh(markerGeometry, markerMaterial);
-    markerMesh.position.copy(vector3Position);
-    
-    return markerMesh;
-  }
+  if (canvas && canvas.getContext) {
+		context = canvas.getContext('2d');
+		
+		// Register event listeners
+		window.addEventListener('mousemove', documentMouseMoveHandler, false);
+		window.addEventListener('mousedown', documentMouseDownHandler, false);
+		window.addEventListener('mouseup', documentMouseUpHandler, false);
+		document.addEventListener('touchstart', documentTouchStartHandler, false);
+		document.addEventListener('touchmove', documentTouchMoveHandler, false);
+		window.addEventListener('resize', windowResizeHandler, false);
+		
+		createParticles();
+		
+		windowResizeHandler();
+		
+		setInterval( loop, 1000 / 60 );
+	}
 }
 
-// Place Marker
-let placeMarker = function(object, options) {
-  let position = markerProto.latLongToVector3(options.latitude, options.longitude, options.radius, options.height);
-  let marker = markerProto.marker(options.size, options.color, position);
-  object.add(marker);
+function createParticles() {
+	particles = [];
+	
+	for (var i = 0; i < QUANTITY; i++) {
+		var particle = {
+			size: 1,
+			position: { x: mouseX, y: mouseY },
+			offset: { x: 0, y: 0 },
+			shift: { x: mouseX, y: mouseY },
+			speed: 0.01+Math.random()*0.04,
+			targetSize: 1,
+			fillColor: '#' + (Math.random() * 0x404040 + 0xaaaaaa | 0).toString(16),
+			orbit: RADIUS*.5 + (RADIUS * .5 * Math.random())
+		};
+		
+		particles.push( particle );
+	}
 }
 
-// Place Marker At Address
-let placeMarkerAtAddress = function(address, color) {
-  let encodedLocation = address.replace(/\s/g, '+');
-  let httpRequest = new XMLHttpRequest();
-  
-  httpRequest.open('GET', 'https://maps.googleapis.com/maps/api/geocode/json?address=' + encodedLocation);
-  httpRequest.send(null);
-  httpRequest.onreadystatechange = function() {
-    if (httpRequest.readyState == 4 && httpRequest.status == 200) {
-      let result = JSON.parse(httpRequest.responseText);
-      
-      if (result.results.length > 0) {
-        let latitude = result.results[0].geometry.location.lat;
-        let longitude = result.results[0].geometry.location.lng;
-
-        placeMarker(earth.getObjectByName('surface'),{
-          latitude: latitude,
-          longitude: longitude,
-          radius: 0.5,
-          height: 0,
-          size: 0.01,
-          color: color,
-        });
-      }
-    }
-  };
+function documentMouseMoveHandler(event) {
+	mouseX = event.clientX - (window.innerWidth - SCREEN_WIDTH) * .5;
+	mouseY = event.clientY - (window.innerHeight - SCREEN_HEIGHT) * .5;
 }
 
-// Galaxy
-let galaxyGeometry = new THREE.SphereGeometry(100, 32, 32);
-let galaxyMaterial = new THREE.MeshBasicMaterial({
-  side: THREE.BackSide
-});
-let galaxy = new THREE.Mesh(galaxyGeometry, galaxyMaterial);
-
-// Load Galaxy Textures
-textureLoader.crossOrigin = true;
-textureLoader.load(
-  'https://s3-us-west-2.amazonaws.com/s.cdpn.io/141228/starfield.png',
-  function(texture) {
-    galaxyMaterial.map = texture;
-    scene.add(galaxy);
-  }
-);
-
-// Scene, Camera, Renderer Configuration
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
-
-camera.position.set(1,1,1);
-orbitControls.enabled = !cameraAutoRotation;
-
-scene.add(camera);
-scene.add(spotLight);
-scene.add(earth);
-
-// Light Configurations
-spotLight.position.set(2, 0, 1);
-
-// Mesh Configurations
-earth.receiveShadow = true;
-earth.castShadow = true;
-earth.getObjectByName('surface').geometry.center();
-
-// On window resize, adjust camera aspect ratio and renderer size
-window.addEventListener('resize', function() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
-
-// Main render function
-let render = function() {
-  earth.getObjectByName('surface').rotation.y += 1/32 * 0.01;
-  earth.getObjectByName('atmosphere').rotation.y += 1/16 * 0.01;
-  if (cameraAutoRotation) {
-    cameraRotation += cameraRotationSpeed;
-    camera.position.y = 0;
-    camera.position.x = 2 * Math.sin(cameraRotation);
-    camera.position.z = 2 * Math.cos(cameraRotation);
-    camera.lookAt(earth.position);
-  }
-  requestAnimationFrame(render);
-  renderer.render(scene, camera);
-};
-
-render();
-
-// dat.gui
-var gui = new dat.GUI();
-var guiCamera = gui.addFolder('Camera');
-var guiSurface = gui.addFolder('Surface');
-var guiMarkers = guiSurface.addFolder('Markers');
-var guiAtmosphere = gui.addFolder('Atmosphere');
-var guiAtmosphericGlow = guiAtmosphere.addFolder('Glow');
-
-// dat.gui controls object
-var cameraControls = new function() {
-  this.speed = cameraRotationSpeed;
-  this.orbitControls = !cameraAutoRotation;
+function documentMouseDownHandler(event) {
+	mouseIsDown = true;
 }
 
-var surfaceControls = new function() {
-  this.rotation = 0;
-  this.bumpScale = 0.05;
-  this.shininess = 10;
+function documentMouseUpHandler(event) {
+	mouseIsDown = false;
 }
 
-var markersControls = new function() {
-  this.address = '';
-  this.color = 0xff0000;
-  this.placeMarker= function() {
-    placeMarkerAtAddress(this.address, this.color);
-  }
+function documentTouchStartHandler(event) {
+	if(event.touches.length == 1) {
+		event.preventDefault();
+
+		mouseX = event.touches[0].pageX - (window.innerWidth - SCREEN_WIDTH) * .5;;
+		mouseY = event.touches[0].pageY - (window.innerHeight - SCREEN_HEIGHT) * .5;
+	}
 }
 
-var atmosphereControls = new function() {
-  this.opacity = 0.8;
+function documentTouchMoveHandler(event) {
+	if(event.touches.length == 1) {
+		event.preventDefault();
+
+		mouseX = event.touches[0].pageX - (window.innerWidth - SCREEN_WIDTH) * .5;;
+		mouseY = event.touches[0].pageY - (window.innerHeight - SCREEN_HEIGHT) * .5;
+	}
 }
 
-var atmosphericGlowControls = new function() {
-  this.intensity = 0.7;
-  this.fade = 7;
-  this.color = 0x93cfef;
+function windowResizeHandler() {
+	SCREEN_WIDTH = window.innerWidth;
+	SCREEN_HEIGHT = window.innerHeight;
+	
+	canvas.width = SCREEN_WIDTH;
+	canvas.height = SCREEN_HEIGHT;
 }
 
-// dat.gui controls
-guiCamera.add(cameraControls, 'speed', 0, 0.1).step(0.001).onChange(function(value) {
-  cameraRotationSpeed = value;
-});
-guiCamera.add(cameraControls, 'orbitControls').onChange(function(value) {
-  cameraAutoRotation = !value;
-  orbitControls.enabled = value;
-});
-
-guiSurface.add(surfaceControls, 'rotation', 0, 6).onChange(function(value) {
-  earth.getObjectByName('surface').rotation.y = value;
-});
-guiSurface.add(surfaceControls, 'bumpScale', 0, 1).step(0.01).onChange(function(value) {
-  earth.getObjectByName('surface').material.bumpScale = value;
-});
-guiSurface.add(surfaceControls, 'shininess', 0, 30).onChange(function(value) {
-  earth.getObjectByName('surface').material.shininess = value;
-});
-
-guiMarkers.add(markersControls, 'address');
-guiMarkers.addColor(markersControls, 'color');
-guiMarkers.add(markersControls, 'placeMarker');
-// Scene, Camera, Renderer
-let renderer = new THREE.WebGLRenderer();
-let scene = new THREE.Scene();
-let aspect = window.innerWidth / window.innerHeight;
-let camera = new THREE.PerspectiveCamera(45, aspect, 0.1, 1500);
-let cameraRotation = 0;
-let cameraRotationSpeed = 0.001;
-let cameraAutoRotation = true;
-let orbitControls = new THREE.OrbitControls(camera);
-
-// Lights
-let spotLight = new THREE.SpotLight(0xffffff, 1, 0, 10, 2);
-
-// Texture Loader
-let textureLoader = new THREE.TextureLoader();
-
-// Planet Proto
-let planetProto = {
-  sphere: function(size) {
-    let sphere = new THREE.SphereGeometry(size, 32, 32);
-    
-    return sphere;
-  },
-  material: function(options) {
-    let material = new THREE.MeshPhongMaterial();
-    if (options) {
-      for (var property in options) {
-        material[property] = options[property];
-      } 
-    }
-    
-    return material;
-  },
-  glowMaterial: function(intensity, fade, color) {
-    // Custom glow shader from https://github.com/stemkoski/stemkoski.github.com/tree/master/Three.js
-    let glowMaterial = new THREE.ShaderMaterial({
-      uniforms: { 
-        'c': {
-          type: 'f',
-          value: intensity
-        },
-        'p': { 
-          type: 'f',
-          value: fade
-        },
-        glowColor: { 
-          type: 'c',
-          value: new THREE.Color(color)
-        },
-        viewVector: {
-          type: 'v3',
-          value: camera.position
-        }
-      },
-      vertexShader: `
-        uniform vec3 viewVector;
-        uniform float c;
-        uniform float p;
-        varying float intensity;
-        void main() {
-          vec3 vNormal = normalize( normalMatrix * normal );
-          vec3 vNormel = normalize( normalMatrix * viewVector );
-          intensity = pow( c - dot(vNormal, vNormel), p );
-          gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-        }`
-      ,
-      fragmentShader: `
-        uniform vec3 glowColor;
-        varying float intensity;
-        void main() 
-        {
-          vec3 glow = glowColor * intensity;
-          gl_FragColor = vec4( glow, 1.0 );
-        }`
-      ,
-      side: THREE.BackSide,
-      blending: THREE.AdditiveBlending,
-      transparent: true
-    });
-    
-    return glowMaterial;
-  },
-  texture: function(material, property, uri) {
-    let textureLoader = new THREE.TextureLoader();
-    textureLoader.crossOrigin = true;
-    textureLoader.load(
-      uri,
-      function(texture) {
-        material[property] = texture;
-        material.needsUpdate = true;
-      }
-    );
-  }
-};
-
-let createPlanet = function(options) {
-  // Create the planet's Surface
-  let surfaceGeometry = planetProto.sphere(options.surface.size);
-  let surfaceMaterial = planetProto.material(options.surface.material);
-  let surface = new THREE.Mesh(surfaceGeometry, surfaceMaterial);
-  
-  // Create the planet's Atmosphere
-  let atmosphereGeometry = planetProto.sphere(options.surface.size + options.atmosphere.size);
-  let atmosphereMaterialDefaults = {
-    side: THREE.DoubleSide,
-    transparent: true
-  }
-  let atmosphereMaterialOptions = Object.assign(atmosphereMaterialDefaults, options.atmosphere.material);
-  let atmosphereMaterial = planetProto.material(atmosphereMaterialOptions);
-  let atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
-  
-  // Create the planet's Atmospheric glow
-  let atmosphericGlowGeometry = planetProto.sphere(options.surface.size + options.atmosphere.size + options.atmosphere.glow.size);
-  let atmosphericGlowMaterial = planetProto.glowMaterial(options.atmosphere.glow.intensity, options.atmosphere.glow.fade, options.atmosphere.glow.color);
-  let atmosphericGlow = new THREE.Mesh(atmosphericGlowGeometry, atmosphericGlowMaterial);
-  
-  // Nest the planet's Surface and Atmosphere into a planet object
-  let planet = new THREE.Object3D();
-  surface.name = 'surface';
-  atmosphere.name = 'atmosphere';
-  atmosphericGlow.name = 'atmosphericGlow';
-  planet.add(surface);
-  planet.add(atmosphere);
-  planet.add(atmosphericGlow);
-
-  // Load the Surface's textures
-  for (let textureProperty in options.surface.textures) {
-    planetProto.texture(
-      surfaceMaterial,
-      textureProperty,
-      options.surface.textures[textureProperty]
-    ); 
-  }
-  
-  // Load the Atmosphere's texture
-  for (let textureProperty in options.atmosphere.textures) {
-    planetProto.texture(
-      atmosphereMaterial,
-      textureProperty,
-      options.atmosphere.textures[textureProperty]
-    );
-  }
-  
-  return planet;
-};
-
-let earth = createPlanet({
-  surface: {
-    size: 0.5,
-    material: {
-      bumpScale: 0.05,
-      specular: new THREE.Color('grey'),
-      shininess: 10
-    },
-    textures: {
-      map: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/141228/earthmap1k.jpg',
-      bumpMap: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/141228/earthbump1k.jpg',
-      specularMap: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/141228/earthspec1k.jpg'
-    }
-  },
-  atmosphere: {
-    size: 0.003,
-    material: {
-      opacity: 0.8
-    },
-    textures: {
-      map: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/141228/earthcloudmap.jpg',
-      alphaMap: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/141228/earthcloudmaptrans.jpg'
-    },
-    glow: {
-      size: 0.02,
-      intensity: 0.7,
-      fade: 7,
-      color: 0x93cfef
-    }
-  },
-});
-
-// Marker Proto
-let markerProto = {
-  latLongToVector3: function latLongToVector3(latitude, longitude, radius, height) {
-    var phi = (latitude)*Math.PI/180;
-    var theta = (longitude-180)*Math.PI/180;
-
-    var x = -(radius+height) * Math.cos(phi) * Math.cos(theta);
-    var y = (radius+height) * Math.sin(phi);
-    var z = (radius+height) * Math.cos(phi) * Math.sin(theta);
-
-    return new THREE.Vector3(x,y,z);
-  },
-  marker: function marker(size, color, vector3Position) {
-    let markerGeometry = new THREE.SphereGeometry(size);
-    let markerMaterial = new THREE.MeshLambertMaterial({
-      color: color
-    });
-    let markerMesh = new THREE.Mesh(markerGeometry, markerMaterial);
-    markerMesh.position.copy(vector3Position);
-    
-    return markerMesh;
-  }
+function loop() {
+	
+	if( mouseIsDown ) {
+		RADIUS_SCALE += ( RADIUS_SCALE_MAX - RADIUS_SCALE ) * (0.02);
+	}
+	else {
+		RADIUS_SCALE -= ( RADIUS_SCALE - RADIUS_SCALE_MIN ) * (0.02);
+	}
+	
+	RADIUS_SCALE = Math.min( RADIUS_SCALE, RADIUS_SCALE_MAX );
+	
+	context.fillStyle = 'rgba(0,0,0,0.05)';
+		 context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+	
+	for (i = 0, len = particles.length; i < len; i++) {
+		var particle = particles[i];
+		
+		var lp = { x: particle.position.x, y: particle.position.y };
+		
+		// Rotation
+		particle.offset.x += particle.speed;
+		particle.offset.y += particle.speed;
+		
+		// Follow mouse with some lag
+		particle.shift.x += ( mouseX - particle.shift.x) * (particle.speed);
+		particle.shift.y += ( mouseY - particle.shift.y) * (particle.speed);
+		
+		// Apply position
+		particle.position.x = particle.shift.x + Math.cos(i + particle.offset.x) * (particle.orbit*RADIUS_SCALE);
+		particle.position.y = particle.shift.y + Math.sin(i + particle.offset.y) * (particle.orbit*RADIUS_SCALE);
+		
+		// Limit to screen bounds
+		particle.position.x = Math.max( Math.min( particle.position.x, SCREEN_WIDTH ), 0 );
+		particle.position.y = Math.max( Math.min( particle.position.y, SCREEN_HEIGHT ), 0 );
+		
+		particle.size += ( particle.targetSize - particle.size ) * 0.05;
+		
+		if( Math.round( particle.size ) == Math.round( particle.targetSize ) ) {
+			particle.targetSize = 1 + Math.random() * 7;
+		}
+		
+		context.beginPath();
+		context.fillStyle = particle.fillColor;
+		context.strokeStyle = particle.fillColor;
+		context.lineWidth = particle.size;
+		context.moveTo(lp.x, lp.y);
+		context.lineTo(particle.position.x, particle.position.y);
+		context.stroke();
+		context.arc(particle.position.x, particle.position.y, particle.size/2, 0, Math.PI*2, true);
+		context.fill();
+	}
 }
 
-// Place Marker
-let placeMarker = function(object, options) {
-  let position = markerProto.latLongToVector3(options.latitude, options.longitude, options.radius, options.height);
-  let marker = markerProto.marker(options.size, options.color, position);
-  object.add(marker);
-}
-
-// Place Marker At Address
-let placeMarkerAtAddress = function(address, color) {
-  let encodedLocation = address.replace(/\s/g, '+');
-  let httpRequest = new XMLHttpRequest();
-  
-  httpRequest.open('GET', 'https://maps.googleapis.com/maps/api/geocode/json?address=' + encodedLocation);
-  httpRequest.send(null);
-  httpRequest.onreadystatechange = function() {
-    if (httpRequest.readyState == 4 && httpRequest.status == 200) {
-      let result = JSON.parse(httpRequest.responseText);
-      
-      if (result.results.length > 0) {
-        let latitude = result.results[0].geometry.location.lat;
-        let longitude = result.results[0].geometry.location.lng;
-
-        placeMarker(earth.getObjectByName('surface'),{
-          latitude: latitude,
-          longitude: longitude,
-          radius: 0.5,
-          height: 0,
-          size: 0.01,
-          color: color,
-        });
-      }
-    }
-  };
-}
-
-// Galaxy
-let galaxyGeometry = new THREE.SphereGeometry(100, 32, 32);
-let galaxyMaterial = new THREE.MeshBasicMaterial({
-  side: THREE.BackSide
-});
-let galaxy = new THREE.Mesh(galaxyGeometry, galaxyMaterial);
-
-// Load Galaxy Textures
-textureLoader.crossOrigin = true;
-textureLoader.load(
-  'https://s3-us-west-2.amazonaws.com/s.cdpn.io/141228/starfield.png',
-  function(texture) {
-    galaxyMaterial.map = texture;
-    scene.add(galaxy);
-  }
-);
-
-// Scene, Camera, Renderer Configuration
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
-
-camera.position.set(1,1,1);
-orbitControls.enabled = !cameraAutoRotation;
-
-scene.add(camera);
-scene.add(spotLight);
-scene.add(earth);
-
-// Light Configurations
-spotLight.position.set(2, 0, 1);
-
-// Mesh Configurations
-earth.receiveShadow = true;
-earth.castShadow = true;
-earth.getObjectByName('surface').geometry.center();
-
-// On window resize, adjust camera aspect ratio and renderer size
-window.addEventListener('resize', function() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
-
-// Main render function
-let render = function() {
-  earth.getObjectByName('surface').rotation.y += 1/32 * 0.01;
-  earth.getObjectByName('atmosphere').rotation.y += 1/16 * 0.01;
-  if (cameraAutoRotation) {
-    cameraRotation += cameraRotationSpeed;
-    camera.position.y = 0;
-    camera.position.x = 2 * Math.sin(cameraRotation);
-    camera.position.z = 2 * Math.cos(cameraRotation);
-    camera.lookAt(earth.position);
-  }
-  requestAnimationFrame(render);
-  renderer.render(scene, camera);
-};
-
-render();
-
-// dat.gui
-var gui = new dat.GUI();
-var guiCamera = gui.addFolder('Camera');
-var guiSurface = gui.addFolder('Surface');
-var guiMarkers = guiSurface.addFolder('Markers');
-var guiAtmosphere = gui.addFolder('Atmosphere');
-var guiAtmosphericGlow = guiAtmosphere.addFolder('Glow');
-
-// dat.gui controls object
-var cameraControls = new function() {
-  this.speed = cameraRotationSpeed;
-  this.orbitControls = !cameraAutoRotation;
-}
-
-var surfaceControls = new function() {
-  this.rotation = 0;
-  this.bumpScale = 0.05;
-  this.shininess = 10;
-}
-
-var markersControls = new function() {
-  this.address = '';
-  this.color = 0xff0000;
-  this.placeMarker= function() {
-    placeMarkerAtAddress(this.address, this.color);
-  }
-}
-
-var atmosphereControls = new function() {
-  this.opacity = 0.8;
-}
-
-var atmosphericGlowControls = new function() {
-  this.intensity = 0.7;
-  this.fade = 7;
-  this.color = 0x93cfef;
-}
-
-// dat.gui controls
-guiCamera.add(cameraControls, 'speed', 0, 0.1).step(0.001).onChange(function(value) {
-  cameraRotationSpeed = value;
-});
-guiCamera.add(cameraControls, 'orbitControls').onChange(function(value) {
-  cameraAutoRotation = !value;
-  orbitControls.enabled = value;
-});
-
-guiSurface.add(surfaceControls, 'rotation', 0, 6).onChange(function(value) {
-  earth.getObjectByName('surface').rotation.y = value;
-});
-guiSurface.add(surfaceControls, 'bumpScale', 0, 1).step(0.01).onChange(function(value) {
-  earth.getObjectByName('surface').material.bumpScale = value;
-});
-guiSurface.add(surfaceControls, 'shininess', 0, 30).onChange(function(value) {
-  earth.getObjectByName('surface').material.shininess = value;
-});
-
-guiMarkers.add(markersControls, 'address');
-guiMarkers.addColor(markersControls, 'color');
-guiMarkers.add(markersControls, 'placeMarker');
-
-guiAtmosphere.add(atmosphereControls, 'opacity', 0, 1).onChange(function(value) {
-  earth.getObjectByName('atmosphere').material.opacity = value;
-});
-
-guiAtmosphericGlow.add(atmosphericGlowControls, 'intensity', 0, 1).onChange(function(value) {
-  earth.getObjectByName('atmosphericGlow').material.uniforms['c'].value = value;
-});
-guiAtmosphericGlow.add(atmosphericGlowControls, 'fade', 0, 50).onChange(function(value) {
-  earth.getObjectByName('atmosphericGlow').material.uniforms['p'].value = value;
-});
-guiAtmosphericGlow.addColor(atmosphericGlowControls, 'color').onChange(function(value) {
-  earth.getObjectByName('atmosphericGlow').material.uniforms.glowColor.value.setHex(value);
-});
-guiAtmosphere.add(atmosphereControls, 'opacity', 0, 1).onChange(function(value) {
-  earth.getObjectByName('atmosphere').material.opacity = value;
-});
-
-guiAtmosphericGlow.add(atmosphericGlowControls, 'intensity', 0, 1).onChange(function(value) {
-  earth.getObjectByName('atmosphericGlow').material.uniforms['c'].value = value;
-});
-guiAtmosphericGlow.add(atmosphericGlowControls, 'fade', 0, 50).onChange(function(value) {
-  earth.getObjectByName('atmosphericGlow').material.uniforms['p'].value = value;
-});
-guiAtmosphericGlow.addColor(atmosphericGlowControls, 'color').onChange(function(value) {
-  earth.getObjectByName('atmosphericGlow').material.uniforms.glowColor.value.setHex(value);
-});
+window.onload = init;
